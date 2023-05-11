@@ -1,0 +1,29 @@
+name: maxcci
+on:
+  push:
+    branches:
+      - main
+      - feature-branch
+      
+jobs:
+  dev:
+    if: github.ref == 'refs/heads/feature-branch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: dev
+        run: |
+          echo "${{secrets.JACOBCIDEV }}" | docker login -u "santosch" --password-stdin
+          docker image build -t santosch/jacobcidev:v${{ github.run_number }} .
+          docker push santosch/jacobcidev:v${{ github.run_number }}
+          
+  prod:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: prod
+        run: |
+         echo "${{secrets.MAXCCIPROD }}" | docker login -u "santosch" --password-stdin
+         docker image build -t santosch/maxcciprod:v${{ github.run_number }} .
+         docker push santosch/maxcciprod:v${{ github.run_number }}
